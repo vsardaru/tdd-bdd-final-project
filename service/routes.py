@@ -101,6 +101,24 @@ def create_products():
 #
 # PLACE YOUR CODE TO LIST ALL PRODUCTS HERE
 #
+@app.route("/products", methods=["GET"])
+def list_products():
+    """Lists all products with optional filtering by name, category, and availability"""
+    name = request.args.get("name")
+    category = request.args.get("category")
+    available = request.args.get("available")
+    
+    # Get all products or filter them based on query parameters
+    products = Product.query.all()
+
+    if name:
+        products = [p for p in products if name.lower() in p.name.lower()]
+    if category:
+        products = [p for p in products if category.lower() in p.category.lower()]
+    if available is not None:
+        products = [p for p in products if str(p.available) == available]
+
+    return jsonify([product.serialize() for product in products]), status.HTTP_200_OK
 
 ######################################################################
 # R E A D   A   P R O D U C T
@@ -109,6 +127,14 @@ def create_products():
 #
 # PLACE YOUR CODE HERE TO READ A PRODUCT
 #
+@app.route("/products/<int:product_id>", methods=["GET"])
+def read_product(product_id):
+    """Reads a product by ID"""
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({"error": "Product not found"}), status.HTTP_404_NOT_FOUND
+
+    return jsonify(product.serialize()), status.HTTP_200_OK
 
 ######################################################################
 # U P D A T E   A   P R O D U C T
@@ -117,6 +143,23 @@ def create_products():
 #
 # PLACE YOUR CODE TO UPDATE A PRODUCT HERE
 #
+@app.route("/products/<int:product_id>", methods=["PUT"])
+def update_product(product_id):
+    """Updates a product"""
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({"error": "Product not found"}), status.HTTP_404_NOT_FOUND
+
+    data = request.get_json()
+    product.name = data.get("name", product.name)
+    product.description = data.get("description", product.description)
+    product.price = data.get("price", product.price)
+    product.available = data.get("available", product.available)
+    product.category = data.get("category", product.category)
+
+    db.session.commit()
+
+    return jsonify(product.serialize()), status.HTTP_200_OK
 
 ######################################################################
 # D E L E T E   A   P R O D U C T
@@ -126,3 +169,14 @@ def create_products():
 #
 # PLACE YOUR CODE TO DELETE A PRODUCT HERE
 #
+@app.route("/products/<int:product_id>", methods=["DELETE"])
+def delete_product(product_id):
+    """Deletes a product by ID"""
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({"error": "Product not found"}), status.HTTP_404_NOT_FOUND
+
+    db.session.delete(product)
+    db.session.commit()
+
+    return '', status.HTTP_204_NO_CONTENT

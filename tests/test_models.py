@@ -101,6 +101,54 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(new_product.available, product.available)
         self.assertEqual(new_product.category, product.category)
 
-    #
-    # ADD YOUR TEST CASES HERE
-    #
+    def test_update_a_product(self):
+        """It should Update a product and assert that it changes"""
+        product = ProductFactory.create(name="Old Product", description="Old description", price=5.0, available=False, category=Category.ELECTRONICS)
+        product.name = "Updated Product"
+        product.description = "Updated description"
+        product.price = 25.0
+        product.available = True
+        product.category = Category.CLOTHS
+        product.save()
+
+        updated_product = Product.query.get(product.id)
+        self.assertEqual(updated_product.name, "Updated Product")
+        self.assertEqual(updated_product.description, "Updated description")
+        self.assertEqual(updated_product.price, 25.0)
+        self.assertTrue(updated_product.available)
+        self.assertEqual(updated_product.category, Category.CLOTHS)
+
+    def test_delete_a_product(self):
+        """It should Delete a product and assert that it is removed"""
+        product = ProductFactory.create(name="Product to Delete", description="Description", price=15.0, available=True, category=Category.FURNITURE)
+        product_id = product.id
+        product.delete()
+
+        deleted_product = Product.query.get(product_id)
+        self.assertIsNone(deleted_product)
+
+    def test_list_all_products(self):
+        """It should List all products"""
+        ProductFactory.create(name="Product 1", description="Description 1", price=10.0, available=True, category=Category.ELECTRONICS)
+        ProductFactory.create(name="Product 2", description="Description 2", price=20.0, available=False, category=Category.CLOTHS)
+
+        products = Product.all()
+        self.assertEqual(len(products), 2)
+
+    def test_search_by_name(self):
+        """It should Search a product by name"""
+        product = ProductFactory.create(name="Unique Product", description="Description", price=12.5, available=True, category=Category.ELECTRONICS)
+        found_product = Product.query.filter_by(name="Unique Product").first()
+        self.assertEqual(found_product.name, "Unique Product")
+
+    def test_search_by_category(self):
+        """It should Search a product by category"""
+        product = ProductFactory.create(name="Category Product", description="Description", price=8.0, available=True, category=Category.FURNITURE)
+        found_product = Product.query.filter_by(category=Category.FURNITURE).first()
+        self.assertEqual(found_product.category, Category.FURNITURE)
+
+    def test_search_by_availability(self):
+        """It should Search a product by availability"""
+        product = ProductFactory.create(name="Available Product", description="Description", price=10.0, available=True, category=Category.ELECTRONICS)
+        found_product = Product.query.filter_by(available=True).first()
+        self.assertTrue(found_product.available)
