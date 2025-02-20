@@ -38,3 +38,51 @@ Scenario: Create a Product
     And I should see "True" in the "Available" dropdown
     And I should see "Tools" in the "Category" dropdown
     And I should see "34.95" in the "Price" field
+
+Scenario: Update a Product
+    When I visit the "Home Page"
+    And I set the "Id" to the previously created product's "Id"
+    And I set the "Name" to "Screwdriver"
+    And I set the "Description" to "Flathead screwdriver"
+    And I select "True" in the "Available" dropdown
+    And I select "Tools" in the "Category" dropdown
+    And I set the "Price" to "15.95"
+    And I press the "Update" button
+    Then I should see the message "Success"
+    When I press the "Retrieve" button
+    Then I should see "Screwdriver" in the "Name" field
+    And I should see "Flathead screwdriver" in the "Description" field
+    And I should see "True" in the "Available" dropdown
+    And I should see "Tools" in the "Category" dropdown
+    And I should see "15.95" in the "Price" field
+
+Scenario: Delete a Product
+    When I visit the "Home Page"
+    And I set the "Id" to the previously created product's "Id"
+    And I press the "Delete" button
+    Then I should see the message "Success"
+    When I press the "Retrieve" button
+    Then I should see the message "Product not found"
+
+Scenario: List all Products
+    When I visit the "Home Page"
+    And I press the "List all Products" button
+    Then I should see a list of all products
+
+Scenario: Search for Products by Category
+    When I visit the "Home Page"
+    And I set the "Category" to "Tools"
+    And I press the "Search" button
+    Then I should see products under the "Tools" category
+
+Scenario: Search for Products by Availability
+    When I visit the "Home Page"
+    And I set the "Available" to "True"
+    And I press the "Search" button
+    Then I should see products that are available
+
+Scenario: Search for Products by Name
+    When I visit the "Home Page"
+    And I set the "Name" to "Hat"
+    And I press the "Search" button
+    Then I should see "Hat" in the list of products

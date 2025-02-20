@@ -105,6 +105,32 @@ def step_impl(context, element_name):
 ##################################################################
 
 ## UPDATE CODE HERE ##
+@when('I press the "{button_name}" button')
+def step_impl(context, button_name):
+    """Click a button with the given name"""
+    button_id = f'{button_name.lower().replace(" ", "_")}-btn'
+    button = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.element_to_be_clickable((By.ID, button_id))
+    )
+    button.click()
+
+@then('I should see "{text_string}" in the page')
+def step_impl(context, text_string):
+    """Verify that the page contains the expected text"""
+    element = context.driver.find_element(By.TAG_NAME, 'body')
+    assert(text_string in element.text)
+
+@then('I should not see "{text_string}" in the page')
+def step_impl(context, text_string):
+    """Verify that the page does not contain the specified text"""
+    element = context.driver.find_element(By.TAG_NAME, 'body')
+    assert(text_string not in element.text)
+
+@then('I should see the message "{message}"')
+def step_impl(context, message):
+    """Verify that the page contains a specific message"""
+    element = context.driver.find_element(By.TAG_NAME, 'body')
+    assert(message in element.text)
 
 ##################################################################
 # This code works because of the following naming convention:
